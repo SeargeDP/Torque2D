@@ -30,7 +30,6 @@ GuiExpandCtrl::GuiExpandCtrl()
 {
    mActive = true;
    mExpanded = false;
-   mIsContainer = true;
    mCollapsedExtent.set(64,64);
    mAnimationProgress = 1;
    mExpandedExtent.set(64, 64);

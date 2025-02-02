@@ -112,6 +112,7 @@ GuiColorPopupCtrl::GuiColorPopupCtrl()
 	mBounds.extent.set(140, 24);
 	mIsOpen = false;
 	mActive = true;
+	mRendersChildren = false;
 	mIsContainer = false;
 	mBaseColor = ColorF(0.5f, 0.5f, 0.5f);
 	mPopupSize = Point2I(240, 208);

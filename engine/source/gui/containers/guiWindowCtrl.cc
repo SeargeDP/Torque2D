@@ -45,7 +45,6 @@ GuiWindowCtrl::GuiWindowCtrl(void)
    mTitleHeight = 20;
    mResizeRightWidth = 10;
    mResizeBottomHeight = 10;
-   mIsContainer = true;
    mDepressed = false;
    curHitRegion = None;
    mActive = true;

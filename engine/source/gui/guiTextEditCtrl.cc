@@ -422,9 +422,9 @@ void GuiTextEditCtrl::initPersistFields()
    addGroup("Text Edit");
    addField("returnCommand", TypeString, Offset(mReturnCommand, GuiTextEditCtrl));
    addField("escapeCommand", TypeString, Offset(mEscapeCommand, GuiTextEditCtrl));
-   addField("sinkAllKeyEvents",  TypeBool,      Offset(mSinkAllKeyEvents,  GuiTextEditCtrl));
-   addField("password", TypeBool, Offset(mPasswordText, GuiTextEditCtrl));
-   addField("returnCausesTab", TypeBool, Offset(mReturnCausesTab, GuiTextEditCtrl));
+   addField("sinkAllKeyEvents",  TypeBool,      Offset(mSinkAllKeyEvents,  GuiTextEditCtrl), &writeSinkAllKeyEventsFn);
+   addField("password", TypeBool, Offset(mPasswordText, GuiTextEditCtrl), &writePasswordFn);
+   addField("returnCausesTab", TypeBool, Offset(mReturnCausesTab, GuiTextEditCtrl), &writeReturnCausesTabFn);
    addProtectedField("maxLength", TypeS32,		Offset(mMaxStrLen,			GuiTextEditCtrl), &setMaxLengthProperty, &defaultProtectedGetFn, "The max number of characters that can be entered into the text edit box.");
    addProtectedField("inputMode", TypeEnum,		Offset(mInputMode,			GuiTextEditCtrl), &setInputMode, &getInputMode, &writeInputMode, 1, &gInputModeTable, "InputMode allows different characters to be entered.");
    addField("editCursor", TypeGuiCursor, Offset(mEditCursor, GuiTextEditCtrl));
@@ -940,8 +940,20 @@ bool GuiTextEditCtrl::tabPrev()
 	return false;
 }
 
+void GuiTextEditCtrl::onFocus(bool foundFirstResponder)
+{
+	Parent::onFocus(foundFirstResponder);
+
+	mTextOnFocus = mText;
+}
+
 void GuiTextEditCtrl::setFirstResponder()
 {
+	if(!isFirstResponder())
+	{
+		mTextOnFocus = mText;
+	}
+
 	selectAllText();
 	if(mTextBuffer.length() == 0)
 	{
@@ -1432,12 +1444,7 @@ bool GuiTextEditCtrl::handleKeyDownWithNoModifier(const GuiEvent& event)
         return tabNext();
 
     case KEY_ESCAPE:
-        if (mEscapeCommand && mEscapeCommand[0])
-        {
-            Con::evaluate(mEscapeCommand);
-            return true;
-        }
-        return false;
+        return handleEscapeKey();
 
     case KEY_RETURN:
     case KEY_NUMPADENTER:
@@ -1570,21 +1577,54 @@ bool GuiTextEditCtrl::handleDelete()
     return true;
 }
 
+bool GuiTextEditCtrl::handleEscapeKey()
+{
+	if(isMethod("onEscape"))
+		Con::executef(this, 1, "onEscape");
+
+	bool preventDefault = false;
+	if (mEscapeCommand && mEscapeCommand[0])
+	{
+		preventDefault = Con::evaluate(mEscapeCommand);
+	}
+	
+	if(!preventDefault)
+	{
+		setText(mTextOnFocus);
+		GuiControl* parent = getParent();
+		if (parent)
+		{
+			parent->onFocus(false);
+		}
+	}
+
+	return true;
+}
+
 bool GuiTextEditCtrl::handleEnterKey()
 {
     if (isMethod("onReturn"))
         Con::executef(this, 1, "onReturn");
 
-    if (mReturnCausesTab)
+    bool preventDefault = false;
+    if (mReturnCommand && mReturnCommand[0])
+    {
+        preventDefault = Con::evaluate(mReturnCommand);
+    }
+
+	if (mReturnCausesTab)
     {
         tabNext();
     }
+	else if (!preventDefault)
+	{
+		GuiControl* parent = getParent();
+		if (parent)
+		{
+			parent->onFocus(false);
+		}
+	}
 
-    
-    if (mReturnCommand && mReturnCommand[0])
-    {
-        Con::evaluate(mReturnCommand);
-    }
     return true;
 }
 

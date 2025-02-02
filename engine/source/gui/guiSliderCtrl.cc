@@ -43,6 +43,7 @@ GuiSliderCtrl::GuiSliderCtrl(void)
     mDisplayValue = false;
     mMouseOver = false;
     mDepressed = false;
+	mRendersChildren = false;
 	mIsContainer = false;
 }
 

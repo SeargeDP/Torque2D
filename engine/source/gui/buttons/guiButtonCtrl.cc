@@ -41,6 +41,7 @@ GuiButtonCtrl::GuiButtonCtrl()
 	mText = StringTable->insert("Button");
 	mTextID = StringTable->EmptyString;
 	mProfile = NULL;
+	mIsContainer = false;
 
 	setField("profile", "GuiButtonProfile");
 }

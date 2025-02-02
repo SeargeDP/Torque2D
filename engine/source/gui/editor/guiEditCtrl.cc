@@ -412,7 +412,7 @@ S32 GuiEditCtrl::getSizingHitKnobs(const Point2I& pt, const RectI& box)
 	return sizingNone;
 }
 
-void GuiEditCtrl::drawNuts(RectI& box, ColorI& outlineColor, ColorI& nutColor)
+void GuiEditCtrl::drawControlDecoration(GuiControl* ctrl, RectI& box, ColorI& outlineColor, ColorI& nutColor)
 {
 	S32 lx = box.point.x, rx = box.point.x + box.extent.x - 1;
 	S32 cx = (lx + rx) >> 1;
@@ -421,6 +421,63 @@ void GuiEditCtrl::drawNuts(RectI& box, ColorI& outlineColor, ColorI& nutColor)
 	ColorI fillColor = mProfile->getFillColor(DisabledState);
 	ColorI weakColor(fillColor.red, fillColor.green, fillColor.blue, 120);
 	ColorI strongColor(fillColor.red, fillColor.green, fillColor.blue, 200);
+	ColorI strongestColor(fillColor.red, fillColor.green, fillColor.blue, 255);
+	drawTargetLines(lx, ty, weakColor, by, rx, strongColor);
+	
+	if (ctrl->isHidden())
+	{
+		box.inset(-1, -1);
+		drawDashedLine(10, lx, ty, rx, ty, strongestColor);
+		drawDashedLine(10, lx, ty, lx, by, strongestColor);
+		drawDashedLine(10, rx, ty, rx, by, strongestColor);
+		drawDashedLine(10, lx, by, rx, by, strongestColor);
+
+		if (ctrl->isLocked())
+		{
+			box.inset(-1, -1);
+			dglDrawRect(box, outlineColor);
+		}
+	}
+	else if (ctrl->isLocked())
+	{
+		box.inset(-1, -1);
+		dglDrawRect(box, strongestColor);
+		box.inset(-1,-1);
+		dglDrawRect(box, outlineColor);
+	}
+	else
+	{
+		drawNuts(lx, ty, rx, by, outlineColor, nutColor, cy, cx);
+	}
+}
+
+void GuiEditCtrl::drawDashedLine(const F32& dashLength, const S32& x1, const S32& y1, const S32& x2, const S32& y2, ColorI& color)
+{
+	F32 dx = x2 - x1;
+	F32 dy = y2 - y1;
+	F32 lineLength = mSqrt(dx * dx + dy * dy);
+	S32 numSegments = mCeil(lineLength / dashLength);
+	F32 unitX = dx / lineLength;
+	F32 unitY = dy / lineLength;
+
+	for (int i = 0; i < numSegments; i++) 
+	{
+		F32 startX = x1 + (i * dashLength * unitX);
+		F32 startY = y1 + (i * dashLength * unitY);
+
+		F32 remainingLength = lineLength - (i * dashLength);
+		F32 currentDashLength = getMin((dashLength), remainingLength);
+		F32 endX = startX + (currentDashLength * unitX);
+		F32 endY = startY + (currentDashLength * unitY);
+
+		if (i % 2 == 0) {
+			dglDrawLine(startX, startY, endX, endY, color);
+		}
+	}
+}
+
+void GuiEditCtrl::drawTargetLines(const S32& lx, const S32& ty, ColorI& weakColor, const S32& by, const S32& rx, ColorI& strongColor)
+{
 	if (lx > 0 && ty > 0)
 	{
 		dglDrawLine(0, ty, lx, ty, weakColor);
@@ -443,7 +500,10 @@ void GuiEditCtrl::drawNuts(RectI& box, ColorI& outlineColor, ColorI& nutColor)
 	}
 	if (rx < extent.x && ty < extent.y)
 		dglDrawLine(rx, ty, extent.x, ty, strongColor);
+}
 
+void GuiEditCtrl::drawNuts(S32& lx, S32& ty, S32& rx, S32& by, ColorI& outlineColor, ColorI& nutColor, const S32& cy, const S32& cx)
+{
 	// adjust nuts, so they dont straddle the controls
 	lx -= NUT_SIZE;
 	ty -= NUT_SIZE;
@@ -521,7 +581,7 @@ void GuiEditCtrl::onRender(Point2I offset, const RectI& updateRect)
 				outlineColor = border->getBorderColor(SelectedState);
 			}
 
-			drawNuts(box, outlineColor, nutColor);
+			drawControlDecoration(ctrl, box, outlineColor, nutColor);
 		}
 		if (mMouseDownMode == DragSelecting)
 		{

@@ -56,7 +56,7 @@ function GuiEditorInspectorWindow::onAdd(%this)
 
     %this.inspectList = new SimSet();
 
-	%this.inspector.addHiddenField("isContainer");
+	//%this.inspector.addHiddenField("isContainer");
 	%this.inspector.addHiddenField("BindToGuiEditor");
 }
 

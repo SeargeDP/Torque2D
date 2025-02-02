@@ -33,7 +33,6 @@ IMPLEMENT_CONOBJECT(GuiTreeViewCtrl);
 GuiTreeViewCtrl::GuiTreeViewCtrl()
 {
 	mActive = true;
-	mIsContainer = false;
 	mIndentSize = 10;
 	mMultipleSelections = true;
 	mTouchPoint = Point2I::Zero;

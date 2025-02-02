@@ -336,7 +336,6 @@ IMPLEMENT_CONOBJECT(GuiFrameSetCtrl);
 
 GuiFrameSetCtrl::GuiFrameSetCtrl()
 {
-	mIsContainer = true;
 	setField("profile", "GuiDefaultProfile");
 
 	mRootFrame = Frame(this, nullptr);

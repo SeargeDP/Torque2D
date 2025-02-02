@@ -120,8 +120,9 @@ GuiControl::GuiControl()
    mVertSizing          = vertResizeBottom;
    mTooltipProfile      = NULL;
    mTooltip             = StringTable->EmptyString;
-   mTipHoverTime        = 1000;
-   mTooltipWidth		= 250;
+   mTipHoverTime        = DEFAULT_TOOLTIP_HOVERTIME;
+   mTooltipWidth        = DEFAULT_TOOLTIP_WIDTH;
+   mRendersChildren     = true;
    mIsContainer         = true;
    mAllowEventPassThru  = false;
    mTextWrap			= false;
@@ -141,10 +142,6 @@ bool GuiControl::onAdd()
 
    // Grab the classname of this object
    const char *cName = getClassName();
-
-   // if we're a pure GuiControl, then we're a container by default.
-   if(dStrcmp("GuiControl", cName) == 0)
-      mIsContainer = true;
 
    // Clamp to minExtent
    mBounds.extent.x = getMax( mMinExtent.x, mBounds.extent.x );
@@ -208,9 +205,9 @@ void GuiControl::initPersistFields()
    Parent::initPersistFields();
 
    // Things relevant only to the editor.
-   addGroup("Gui Editing");
-   addField("isContainer",       TypeBool,      Offset(mIsContainer, GuiControl));
-   endGroup("Gui Editing");
+   addGroup("Editing");
+   addProtectedField("isContainer",       TypeBool,      Offset(mIsContainer, GuiControl), &setIsContainerFn, &defaultProtectedGetFn, &writeIsContainerFn, "True if the container should accept children in the editor. Some controls cannot be containers.");
+   endGroup("Editing");
 
    // Parent Group.
    addGroup("GuiControl");
@@ -222,9 +219,9 @@ void GuiControl::initPersistFields()
    addProtectedField("Position",          TypePoint2I,		Offset(mBounds.point, GuiControl), &setPositionFn, &defaultProtectedGetFn, "The location of the control in relation to its parent's content area.");
    addProtectedField("Extent",            TypePoint2I,		Offset(mBounds.extent, GuiControl), &setExtentFn, &defaultProtectedGetFn, "The size of the control writen as width and height.");
    addProtectedField("MinExtent",         TypePoint2I,		Offset(mMinExtent, GuiControl), &setMinExtentFn, &defaultProtectedGetFn, &writeMinExtentFn, "The extent will not shrink below this size.");
-   addField("canSave",           TypeBool,			Offset(mCanSave, GuiControl));
-   addField("Visible",           TypeBool,			Offset(mVisible, GuiControl));
-   addField("useInput",          TypeBool,          Offset(mUseInput, GuiControl));
+   addField("canSave",           TypeBool,          Offset(mCanSave, GuiControl), &defaultProtectedNotWriteFn);
+   addField("Visible",           TypeBool,          Offset(mVisible, GuiControl), &writeVisibleFn);
+   addField("useInput",          TypeBool,          Offset(mUseInput, GuiControl), &writeUseInputFn);
 
    addField("Variable",          TypeString,		Offset(mConsoleVariable, GuiControl));
    addField("Command",           TypeString,		Offset(mConsoleCommand, GuiControl));
@@ -236,8 +233,8 @@ void GuiControl::initPersistFields()
    addGroup("ToolTip");
    addField("tooltipprofile",    TypeGuiProfile,	Offset(mTooltipProfile, GuiControl));
    addField("tooltip",           TypeString,		Offset(mTooltip, GuiControl));
-   addField("tooltipWidth",      TypeS32,			Offset(mTooltipWidth, GuiControl));
-   addField("hovertime",         TypeS32,			Offset(mTipHoverTime, GuiControl));
+   addField("tooltipWidth",      TypeS32,			Offset(mTooltipWidth, GuiControl), &writeToolTipWidthFn);
+   addField("hovertime",         TypeS32,			Offset(mTipHoverTime, GuiControl), &writeToolTipHoverTimeFn);
    endGroup("ToolTip");
 
 
@@ -252,9 +249,9 @@ void GuiControl::initPersistFields()
    addField("textExtend", TypeBool, Offset(mTextExtend, GuiControl), &writeTextExtendFn, "If true, extent will change based on the size of the control's text when possible.");
    addField("align", TypeEnum, Offset(mAlignment, GuiControl), 1, &gAlignCtrlTable);
    addField("vAlign", TypeEnum, Offset(mVAlignment, GuiControl), 1, &gVAlignCtrlTable);
-   addField("fontSizeAdjust", TypeF32, Offset(mFontSizeAdjust, GuiControl), "A decimal value that is multiplied with the profile's fontSize to determine the control's actual font size.");
-   addField("overrideFontColor", TypeBool, Offset(mOverrideFontColor, GuiControl), "If true, the control's fontColor will override the profile's font color.");
-   addField("fontColor", TypeColorI, Offset(mFontColor, GuiControl), "A color to override the font color of the control's profile. OverrideFontColor must be set to true for this to work.");
+   addField("fontSizeAdjust", TypeF32, Offset(mFontSizeAdjust, GuiControl), &writeFontSizeAdjustFn, "A decimal value that is multiplied with the profile's fontSize to determine the control's actual font size.");
+   addField("overrideFontColor", TypeBool, Offset(mOverrideFontColor, GuiControl), &writeOverrideFontColorFn, "If true, the control's fontColor will override the profile's font color.");
+   addField("fontColor", TypeColorI, Offset(mFontColor, GuiControl), &writeFontColorFn, "A color to override the font color of the control's profile. OverrideFontColor must be set to true for this to work.");
    endGroup("Text");
 }
 
@@ -1003,7 +1000,7 @@ void GuiControl::renderChildControls(const Point2I& offset, const RectI& content
 			  Con::errorf( "GuiControl::renderChildControls() object %i is NULL", count );
 			continue;
 		  }
-		  if (ctrl->mVisible)
+		  if (ctrl->mVisible && (!isEditMode() || !ctrl->isHidden()))
 		  {
 			 renderChild(ctrl, offset, content, clipRect);
 		  }

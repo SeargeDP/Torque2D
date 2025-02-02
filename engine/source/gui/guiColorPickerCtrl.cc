@@ -66,6 +66,7 @@ GuiColorPickerCtrl::GuiColorPickerCtrl()
 	mPositionChanged = true;
 	mActionOnMove = false;
 	mShowSelector = false;
+	mRendersChildren = false;
 	mIsContainer = false;
 
 	mProfile = NULL;

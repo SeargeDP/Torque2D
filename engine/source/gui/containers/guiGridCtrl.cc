@@ -56,7 +56,6 @@ IMPLEMENT_CONOBJECT(GuiGridCtrl);
 
 GuiGridCtrl::GuiGridCtrl()
 {
-	mIsContainer = true;
 	mCellModeX = CellMode::Absolute;
 	mCellModeY = CellMode::Absolute;
 	mCellSizeX = 20;

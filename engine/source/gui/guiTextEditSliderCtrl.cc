@@ -37,7 +37,6 @@ GuiTextEditSliderCtrl::GuiTextEditSliderCtrl()
    mIncCounter = 0.0f;
    mFormat = StringTable->insert("%3.2f");
    mTextAreaHit = None;
-   mIsContainer = false;
 }
 
 GuiTextEditSliderCtrl::~GuiTextEditSliderCtrl()

@@ -144,7 +144,10 @@ SceneWindow::SceneWindow() :    mpScene(NULL),
 	mTrackProfile = mScrollBar->mTrackProfile;
 	mThumbProfile->incRefCount();
 	mArrowProfile = mScrollBar->mArrowProfile;
-	mThumbProfile->incRefCount();
+	mThumbProfile->incRefCount(); 
+	
+	mRendersChildren = false;
+	mIsContainer = false;
 }
 
 //-----------------------------------------------------------------------------

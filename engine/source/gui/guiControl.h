@@ -130,16 +130,23 @@ public:
 
    GuiControlProfile *mProfile;
 
+   static const S32 DEFAULT_TOOLTIP_WIDTH = 250;
+   static const S32 DEFAULT_TOOLTIP_HOVERTIME = 1000;
+
     GuiControlProfile	*mTooltipProfile; 
     S32					mTipHoverTime;
     S32					mTooltipWidth;
+
+	static bool writeToolTipWidthFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mTooltipWidth != DEFAULT_TOOLTIP_WIDTH; }
+	static bool writeToolTipHoverTimeFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mTipHoverTime != DEFAULT_TOOLTIP_HOVERTIME; }
 
     bool    mVisible;
     bool    mActive;
     bool    mAwake;
     bool    mSetFirstResponder;
     bool    mCanSave;
-    bool    mIsContainer; ///< if true, then the GuiEditor can drag other controls into this one.
+    bool    mIsContainer; ///< True if the GuiEditor can drag other controls into this one.
+	bool    mRendersChildren; ///< True if the control renders children. If false, then the control cannot be a container. This is set by the class and cannot be changed by the user.
     bool    mUseInput; ///< True if input events like a click can be passed to this gui. False will pass events to the parent and this object and its children will not process input (touch and keyboard).
 
     S32     mLayer;
@@ -226,6 +233,10 @@ protected:
     F32                 mFontSizeAdjust;
     ColorI              mFontColor;
     bool                mOverrideFontColor;
+
+	static bool writeFontSizeAdjustFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mFontSizeAdjust != 1; }
+	static bool writeFontColorFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mOverrideFontColor && ctrl->mFontColor != ColorI(0,0,0,255); }
+	static bool writeOverrideFontColorFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mOverrideFontColor; }
 
     /// @}
 
@@ -361,6 +372,10 @@ public:
     /// @param   value   True if object should be visible
     virtual void setVisible(bool value);
     inline bool isVisible() { return mVisible; } ///< Returns true if the object is visible
+	static bool writeVisibleFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return !ctrl->isVisible(); }
+	static bool writeUseInputFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return !ctrl->mUseInput; }
+	static bool writeIsContainerFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); return ctrl->mRendersChildren && !ctrl->mIsContainer; }
+	static bool setIsContainerFn(void* obj, const char* data) { GuiControl* ctrl = static_cast<GuiControl*>(obj); ctrl->mIsContainer = ctrl->mRendersChildren ? dAtob(data) : false; return false; }
 
     /// Sets the status of this control as active and responding or inactive
     /// @param   value   True if this is active

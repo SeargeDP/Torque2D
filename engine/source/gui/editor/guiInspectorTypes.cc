@@ -606,6 +606,46 @@ void GuiInspectorTypeColorF::finishControlConstruction()
 }
 
 
+IMPLEMENT_CONOBJECT(GuiInspectorTypeFluidColorI);
+
+void GuiInspectorTypeFluidColorI::consoleInit()
+{
+	Parent::consoleInit();
+
+	ConsoleBaseType::getType(TypeFluidColorI)->setInspectorFieldType("GuiInspectorTypeFluidColorI");
+}
+
+GuiInspectorTypeFluidColorI::GuiInspectorTypeFluidColorI()
+{
+	mColorFunction = StringTable->insert("getColorI");
+}
+
+void GuiInspectorTypeFluidColorI::updateValue(StringTableEntry newValue)
+{
+	if (Utility::mGetStringElementCount(newValue) != 4)
+	{
+		return;
+	}
+
+	S32 red = dAtoi(Utility::mGetStringElement(newValue, 0));
+	S32 green = dAtoi(Utility::mGetStringElement(newValue, 1));
+	S32 blue = dAtoi(Utility::mGetStringElement(newValue, 2));
+	S32 alpha = dAtoi(Utility::mGetStringElement(newValue, 3));
+
+	ColorF color = ColorI(red, green, blue, alpha);
+	mColorPopup->setColor(color);
+
+	mRedEdit->setText(Utility::mGetStringElement(newValue, 0));
+	mGreenEdit->setText(Utility::mGetStringElement(newValue, 1));
+	mBlueEdit->setText(Utility::mGetStringElement(newValue, 2));
+	mAlphaEdit->setText(Utility::mGetStringElement(newValue, 3));
+}
+
+void GuiInspectorTypeFluidColorI::finishControlConstruction()
+{
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 // TypeSimObjectPtr GuiInspectorField Class
 //////////////////////////////////////////////////////////////////////////

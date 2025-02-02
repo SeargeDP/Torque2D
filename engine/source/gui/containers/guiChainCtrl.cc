@@ -33,9 +33,9 @@ IMPLEMENT_CONOBJECT(GuiChainCtrl);
 
 GuiChainCtrl::GuiChainCtrl()
 {
-	mIsContainer = true;
 	mChildSpacing = 0;
 	mIsVertical = true;
+	mPrevIsVertical = true;
 	mBounds.extent.set(140, mEditOpenSpace);
 	mResizeGuard = false;
 }

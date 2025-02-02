@@ -36,6 +36,7 @@ GuiListBoxCtrl::GuiListBoxCtrl()
    mFitParentWidth = true;
    mItemSize = Point2I(10,20);
    mLastClickItem = NULL;
+   mRendersChildren = false;
    mIsContainer = false;
    mActive = true;
    caller = this;

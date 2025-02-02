@@ -66,7 +66,6 @@ GuiTabBookCtrl::GuiTabBookCtrl()
    mPages.reserve(12);
    mMinTabWidth = 64;
    mTabWidth = 64;
-   mIsContainer = true;
    mIsFrameSetGenerated = false;
 
    mTabProfile = NULL;

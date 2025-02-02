@@ -34,7 +34,6 @@ GuiTabPageCtrl::GuiTabPageCtrl(void)
 {
    mBounds.extent.set(100, 200);
    mActive = true;
-   mIsContainer = true;
 }
 
 GuiControl *GuiTabPageCtrl::findNextTabable(GuiControl *curResponder, bool firstCall)

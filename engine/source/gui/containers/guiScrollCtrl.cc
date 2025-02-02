@@ -58,7 +58,6 @@ GuiScrollCtrl::GuiScrollCtrl()
    mBaseThumbSize = (mScrollBarThickness * 2);
 
    mUseConstantHeightThumb = false;
-   mIsContainer = true;
 
    mForceVScrollBar = ScrollBarAlwaysOn;
    mForceHScrollBar = ScrollBarAlwaysOn;
@@ -87,6 +86,7 @@ void GuiScrollCtrl::initPersistFields()
 {
    Parent::initPersistFields();
 
+   addGroup("GuiScrollCtrl");
    addField("hScrollBar",           TypeEnum,    Offset(mForceHScrollBar, GuiScrollCtrl), 1, &gScrollBarTable);
    addField("vScrollBar",           TypeEnum,    Offset(mForceVScrollBar, GuiScrollCtrl), 1, &gScrollBarTable);
    addField("constantThumbHeight",  TypeBool,    Offset(mUseConstantHeightThumb, GuiScrollCtrl));
@@ -95,7 +95,7 @@ void GuiScrollCtrl::initPersistFields()
    addField("thumbProfile", TypeGuiProfile, Offset(mThumbProfile, GuiScrollCtrl));
    addField("trackProfile", TypeGuiProfile, Offset(mTrackProfile, GuiScrollCtrl));
    addField("arrowProfile", TypeGuiProfile, Offset(mArrowProfile, GuiScrollCtrl));
-
+   endGroup("GuiScrollCtrl");
 }
 
 void GuiScrollCtrl::resize(const Point2I &newPos, const Point2I &newExt)
